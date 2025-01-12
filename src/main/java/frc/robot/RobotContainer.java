@@ -8,9 +8,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.claw;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
+import frc.robot.subsystems.shooter;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -19,12 +23,18 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  shooter m_Shoot = new shooter();
+
+  claw m_Claw = new claw();
   // The robot's subsystems and commands are defined here...
+  
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_OperatorController = new CommandXboxController(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -49,6 +59,18 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+      /*connects the function of the shooter to the y button */
+      /* This logic passes shooting and stopping code for the shooter subsystems motors whenever the y button is compressed  */
+    m_OperatorController.y().whileTrue(Commands.startEnd(
+      ()-> m_Shoot.shootNote(),
+      ()-> m_Shoot.shooterStop(),
+      m_Shoot));
+
+      m_OperatorController.x().whileTrue(Commands.startEnd(
+        ()-> m_Claw.grab(),
+        ()-> m_Claw.idle(),
+        m_Claw ));
   }
 
   /**
